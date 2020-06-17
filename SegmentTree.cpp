@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 
-#define nod_size(nod) nod.t - nod.f + 1
+#define nod_size(nod) (nod.t - nod.f + 1)
 
 struct nod
 {
@@ -38,7 +38,7 @@ public:
 
 public:
     inline int function(int left, int right);
-    inline int change_val(int size, int update_val);
+    inline int change_val(nod n, int update_val);
 
 private:
     void build(int i, int from, int size)
@@ -63,7 +63,7 @@ private:
 
         if (n.isPending == true && contains(n.f, n.t, from, to))
         {
-            return change_val((to - from + 1), n.pv);
+            return change_val(n, n.pv);
         }
 
         if (contains(from, to, n.f, n.t))
@@ -110,17 +110,17 @@ private:
 
         if (n.isPending == 1)
         {
-            change(&heap[2 * v], n.pv);
-            change(&heap[2 * v + 1], n.pv);
+            change(&heap[2 * v], n.pv, 1);
+            change(&heap[2 * v + 1], n.pv, 1);
             n.isPending = 0;
         }
     }
 
-    void change(nod *n, int value)
+    void change(nod *n, int value, int pending = 0)
     {
         n->pv = value;
-        n->isPending = 1;
-        n->v = change_val(nod_size((*n)), value);
+        n->isPending = pending;
+        n->v = change_val(*n, value);
         array[n->f] = value;
     }
 
@@ -138,12 +138,22 @@ private:
 
 int SegmentTree::function(int left, int right)
 {
-    //TODO : change here
-    return __max(left, right);
+    return __min(left, right);
 }
 
-int SegmentTree::change_val(int size, int pv)
+int SegmentTree::change_val(nod n, int v)
 {
-    //TODO : change here
-    return pv;
+    int e = nod_size(n) * v;
+    return n.v + e;
+}
+
+int main()
+{
+    int arr[] = {1, 3, 4, 2, 1, -2, 4};
+    SegmentTree seg(arr, 7, INT_MAX);
+    printf("%d\n", seg.query(0, 2));
+    seg.update(0, 2, 1);
+    printf("%d\n", seg.query(0, 2));
+    seg.update(0, 2, 4);
+    printf("%d\n", seg.query(0, 2));
 }
